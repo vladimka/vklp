@@ -1,0 +1,10 @@
+{
+	"token" : "",
+	"success_symbol" : "😜",
+	"error_symbol" : "😡",
+	"prefix" : "\\.лп",
+	"modules" : [
+		"basic"
+	],
+	"send_message_on_start" : false
+}

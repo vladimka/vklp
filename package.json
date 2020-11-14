@@ -1,0 +1,16 @@
+{
+  "name": "vklp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vk-io/hear": "^1.0.2",
+    "vk-io": "^4.0.4"
+  }
+}
