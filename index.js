@@ -1,9 +1,9 @@
-const config = require('./config');
+const Config = require('./config');
 const { VK } = require('vk-io');
 const { HearManager } = require('@vk-io/hear');
 
 const vk = new VK({
-	token : config.token
+	token : Config.get('token')
 });
 
 const hearManager = new HearManager();
@@ -14,9 +14,14 @@ vk.api.users.get({})
 	.then(res => user = res[0])
 	.catch(err => console.error(err));
 
-vk.updates.on('message_new', async (ctx, next) => {
-	if(ctx.senderId != user.id)
-		return;
+// vk.updates.on('message', async (ctx, next) => {
+// 	return console.log(ctx);
+// });
+
+vk.updates.on('message', async (ctx, next) => {
+	if(ctx.peerType != 'user')
+		if(ctx.senderId != user.id)
+			return;
 
 	ctx.edit = async text => {
 		await vk.api.messages.edit({
@@ -34,18 +39,18 @@ vk.updates.on('message_new', async (ctx, next) => {
 	}
 
 	ctx.success = async text => {
-		await ctx.answer(config.success_symbol, text);
+		await ctx.answer(Config.get('success_symbol'), text);
 	}
 
 	ctx.failure = async text => {
-		await ctx.answer(config.error_symbol, text);
+		await ctx.answer(Config.get('error_symbol'), text);
 	}
 
 	return await next();
 });
 
-vk.updates.on('message_new', async (ctx, next) => {
-	let regexp = new RegExp(`${config.prefix}(?<command>.+)`);
+vk.updates.on('message', async (ctx, next) => {
+	let regexp = new RegExp(`${Config.get('prefix')}\\s+(?<command>.+)`);
 
 	if(!regexp.test(ctx.text))
 		return
@@ -56,17 +61,18 @@ vk.updates.on('message_new', async (ctx, next) => {
 	return await next();
 });
 
-vk.updates.on('message_new', async (ctx, next) => {
+vk.updates.on('message', async (ctx, next) => {
 	console.log('Received message');
 	console.log(`Text: ${ctx.text}`);
 	console.log(`Time: ${new Date(ctx.createdAt)}`);
+	console.log(`Peer ID: ${ctx.peerId}`);
 	// console.log(ctx);
 	return await next();
 });
 
-vk.updates.on('message_new', hearManager.middleware);
+vk.updates.on('message', hearManager.middleware);
 
-config.modules.forEach(module => {
+Config.get('modules').forEach(module => {
 	try{
 		let commands = require('./modules/' + module);
 		console.log('Загружаю модуль: ' + module);
@@ -83,11 +89,12 @@ config.modules.forEach(module => {
 vk.updates.startPolling()
 	.then(async () => {
 		console.log('Polling started');
-		if(config.send_message_on_start)
+		if(Config.getSettingByName('send_message_on_start')[0].value == true){
 			await vk.api.messages.send({
 				message : 'VKLP запущен',
 				random_id : 2000000000*Math.random(),
 				peer_id : user.id
 			});
+		}
 	})
 	.catch(console.log);
