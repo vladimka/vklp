@@ -1,4 +1,43 @@
-const config = require('./config.json');
+function genConfig(config){
+	return Object.assign(config, {
+		"token": "TOKEN",
+		"success_symbol": "😜",
+		"error_symbol": "😡",
+		"prefix": "\\.лп",
+		"modules": [
+			"basic"
+		],
+		"settings": [
+			{
+				"name": "send_message_on_start",
+				"display_name": "Приветственное сообщение",
+				"value": true,
+				"value_type": "boolean"
+			},
+			{
+				"name": "delete_answers",
+				"display_name": "Удалять ответы бота",
+				"value": true,
+				"value_type": "boolean"
+			},
+			{
+				"name": "delete_answers_delay",
+				"display_name": "Интервал удаления",
+				"value": "5",
+				"value_type": "time"
+			}
+		]
+	});
+}
+
+let config = {};
+
+try{
+	config = require('./config.json');
+}catch(e){
+	config = genConfig(config);
+}
+
 const fs = require('fs');
 
 class Config{
@@ -36,3 +75,4 @@ class Config{
 }
 
 module.exports = Config;
+module.exports.genConfig = genConfig;

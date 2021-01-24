@@ -9,14 +9,11 @@ const vk = new VK({
 const hearManager = new HearManager();
 
 let user = {};
+let delete_query = [];
 
 vk.api.users.get({})
 	.then(res => user = res[0])
 	.catch(err => console.error(err));
-
-// vk.updates.on('message', async (ctx, next) => {
-// 	return console.log(ctx);
-// });
 
 vk.updates.on('message', async (ctx, next) => {
 	if(ctx.peerType != 'user')
@@ -35,6 +32,9 @@ vk.updates.on('message', async (ctx, next) => {
 	}
 
 	ctx.answer = async (symbol, text) => {
+		if(Config.getSettingByName('delete_answers')[0].value == true)
+			delete_query.push(ctx.id);
+
 		await ctx.edit(`${symbol}| ${text}`);
 	}
 
@@ -44,6 +44,10 @@ vk.updates.on('message', async (ctx, next) => {
 
 	ctx.failure = async text => {
 		await ctx.answer(Config.get('error_symbol'), text);
+	}
+
+	ctx.delete = async (message_ids, delete_for_all=true) => {
+		await vk.api.messages.delete({ message_ids, delete_for_all });
 	}
 
 	return await next();
@@ -66,7 +70,6 @@ vk.updates.on('message', async (ctx, next) => {
 	console.log(`Text: ${ctx.text}`);
 	console.log(`Time: ${new Date(ctx.createdAt)}`);
 	console.log(`Peer ID: ${ctx.peerId}`);
-	// console.log(ctx);
 	return await next();
 });
 
@@ -86,6 +89,20 @@ Config.get('modules').forEach(module => {
 	}
 });
 
+setInterval(async () => {
+	if(delete_query.length < 1)
+		return;
+
+	let id = delete_query.shift();
+
+	if(Config.getSettingByName('delete_answers')[0].value == true)
+		try{
+			return await vk.api.messages.delete({ message_ids : id, delete_for_all : true });
+		}catch(e){}
+
+}, parseFloat(Config.getSettingByName('delete_answers_delay')[0].value) * 1000);
+
+Config.saveConfig();
 vk.updates.startPolling()
 	.then(async () => {
 		console.log('Polling started');

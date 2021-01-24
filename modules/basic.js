@@ -1,6 +1,15 @@
 const version = require('../package').version;
 const Config = require('../config');
 
+function parse_setting_value(value, value_type){
+	if(value_type == 'boolean')
+		value = value == true ? 'да' : value == false ? 'нет' : value;
+	else if(value_type == 'time')
+		value = value + 'c';
+
+	return value;
+}
+
 module.exports = [
 	{
 		regexp : /тест/i,
@@ -13,8 +22,8 @@ module.exports = [
 		regexp : /пинг/i,
 		name : 'ping',
 		async handler(ctx){
-			let ping = new Date(ctx.createdAt).getMilliseconds() / 1000;
-			await ctx.success(`Понг ${ping} c`);
+			let ping = new Date(ctx.createdAt).getMilliseconds();
+			await ctx.success(`Понг ${ping}мc`);
 		}
 	},
 	{
@@ -39,7 +48,7 @@ module.exports = [
 		name : 'info',
 		regexp : /инфо/i,
 		async handler(ctx){
-			await ctx.edit(`-- VKLP v${version} --\nСоздатель: @hex10f2c (Великий и неповторимый)`);
+			await ctx.edit(`-- VKLP v${version} --\nСоздатель: @my_name_is_tom_riddle (Том-Марволло Рэдл)`);
 		}
 	},
 	{
@@ -52,8 +61,8 @@ module.exports = [
 			for(let i = 0; i < settings.length; i++){
 				let name = settings[i].display_name;
 				let value = settings[i].value;
-
-				value = value == true ? 'да' : value == false ? 'нет' : value;
+				let value_type = settings[i].value_type;
+				value = parse_setting_value(value, value_type);
 
 				answer.push(`${i+1} ${name}: ${value}`);
 			}
@@ -66,9 +75,30 @@ module.exports = [
 		regexp : /н(айстройки)?\s+(?<id>\d+)\s+(?<value>.+)$/im,
 		async handler(ctx){
 			let { id, value } = ctx.$match.groups;
+			let setting = Config.getSettingById(id - 1);
+
+			if(setting == undefined)
+				return await ctx.failure(`Настройка с номером ${id} не существует!`);
+
 			value = value == "+" ? true : value == "-" ? false : value;
+
 			Config.setSettingById(id - 1, value);
-			await ctx.success('OK');
+
+			await ctx.success(`${setting.display_name}: ${parse_setting_value(value, setting.value_type)}`);
+		}
+	},
+	{
+		name : 'modules',
+		regexp : /модули/i,
+		async handler(ctx){
+			let modules = Config.get('modules');
+			let answer = ['Список подключенных модулей', '']
+
+			for(let i = 0; i < modules.length; i++){
+				answer.push(`${i+1}. ${modules[i]}`);
+			}
+
+			await ctx.success(answer.join('\n'));
 		}
 	}
 ]
