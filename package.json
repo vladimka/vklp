@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@vk-io/hear": "^1.0.2",
+    "lowdb": "^1.0.0",
     "vk-io": "^4.0.4"
   }
 }

@@ -1,5 +1,5 @@
 const version = require('../package').version;
-const Config = require('../config');
+const db = require('../config');
 
 function parse_setting_value(value, value_type){
 	if(value_type == 'boolean')
@@ -12,7 +12,7 @@ function parse_setting_value(value, value_type){
 
 module.exports = [
 	{
-		regexp : /тест/i,
+		regexp : /^тест$/im,
 		name : 'test',
 		async handler(ctx){
 			await ctx.success('тест');
@@ -55,7 +55,7 @@ module.exports = [
 		name : 'settings',
 		regexp : /н(айстройки)?$/im,
 		async handler(ctx){
-			let settings = Config.get('settings');
+			let settings = db.get('settings').value();
 			let answer = ['-- Настройки VKLP --',''];
 
 			for(let i = 0; i < settings.length; i++){
@@ -75,30 +75,34 @@ module.exports = [
 		regexp : /н(айстройки)?\s+(?<id>\d+)\s+(?<value>.+)$/im,
 		async handler(ctx){
 			let { id, value } = ctx.$match.groups;
-			let setting = Config.getSettingById(id - 1);
+			let setting = db.get('settings').value().find((el, i) => i == id - 1);
 
 			if(setting == undefined)
 				return await ctx.failure(`Настройка с номером ${id} не существует!`);
 
 			value = value == "+" ? true : value == "-" ? false : value;
 
-			Config.setSettingById(id - 1, value);
-
+			await db.get('settings').find({ name : setting.name }).assign({ value }).write();
 			await ctx.success(`${setting.display_name}: ${parse_setting_value(value, setting.value_type)}`);
 		}
 	},
 	{
-		name : 'modules',
-		regexp : /модули/i,
+		name : 'delete messages',
+		regexp : /дд(\s+(?<count>\d+))?/i,
 		async handler(ctx){
-			let modules = Config.get('modules');
-			let answer = ['Список подключенных модулей', '']
+			let { count } = ctx.$match.groups || 25;
 
-			for(let i = 0; i < modules.length; i++){
-				answer.push(`${i+1}. ${modules[i]}`);
-			}
+			let messages = await ctx.api.messages.getHistory({
+				peer_id : ctx.peerId, 
+				count
+			});
 
-			await ctx.success(answer.join('\n'));
+			messages = messages.items.filter(msg => msg.from_id == ctx.user.id);
+			messages.forEach(async msg => {
+				try{
+					await ctx.delete(msg.id);
+				}catch(e){}
+			});
 		}
 	}
 ]

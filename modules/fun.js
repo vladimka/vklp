@@ -1,5 +1,3 @@
-const Config = require('../config');
-
 const soveti = [
 	'Запомни раз и навсегда - London is a capital of Great Britain',
 	'Рассист рассиста определяет по цвету кожи',

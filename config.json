@@ -1,30 +1,37 @@
 {
-	"token": "",
-	"success_symbol": "😜",
-	"error_symbol": "😡",
-	"prefix": "\\.лп",
-	"modules": [
-		"basic",
-		"fun"
-	],
-	"settings": [
-		{
-			"name": "send_message_on_start",
-			"display_name": "Приветственное сообщение",
-			"value": true,
-			"value_type": "boolean"
-		},
-		{
-			"name": "delete_answers",
-			"display_name": "Удалять ответы бота",
-			"value": false,
-			"value_type": "boolean"
-		},
-		{
-			"name": "delete_answers_delay",
-			"display_name": "Интервал удаления",
-			"value": "1",
-			"value_type": "time"
-		}
-	]
+  "token": "9d0062d05583f16ef83b241b04a0f77de452b254dd6bc0cec7da7cb36764adf98a89dce4d4f338bfffe28",
+  "success_symbol": "😜",
+  "error_symbol": "😡",
+  "prefix": "\\.лп",
+  "modules": [
+    "basic",
+    "fun",
+    "_scripts"
+  ],
+  "settings": [
+    {
+      "name": "send_message_on_start",
+      "display_name": "Приветственное сообщение",
+      "value": true,
+      "value_type": "boolean"
+    },
+    {
+      "name": "delete_answers",
+      "display_name": "Удалять ответы бота",
+      "value": false,
+      "value_type": "boolean"
+    },
+    {
+      "name": "delete_answers_delay",
+      "display_name": "Интервал удаления",
+      "value": "1",
+      "value_type": "time"
+    }
+  ],
+  "scripts": [
+    {
+      "name": "тест",
+      "script": "return API.users.get({});"
+    }
+  ]
 }

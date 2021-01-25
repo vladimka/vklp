@@ -1,9 +1,9 @@
-const Config = require('./config');
+const db = require('./config');
 const { VK } = require('vk-io');
 const { HearManager } = require('@vk-io/hear');
 
 const vk = new VK({
-	token : Config.get('token')
+	token : db.get('token').value()
 });
 
 const hearManager = new HearManager();
@@ -32,35 +32,38 @@ vk.updates.on('message', async (ctx, next) => {
 	}
 
 	ctx.answer = async (symbol, text) => {
-		if(Config.getSettingByName('delete_answers')[0].value == true)
+		if(db.get('settings').find({ name : 'delete_answers' }).value().value == true)
 			delete_query.push(ctx.id);
 
 		await ctx.edit(`${symbol}| ${text}`);
 	}
 
 	ctx.success = async text => {
-		await ctx.answer(Config.get('success_symbol'), text);
+		await ctx.answer(db.get('success_symbol').value(), text);
 	}
 
 	ctx.failure = async text => {
-		await ctx.answer(Config.get('error_symbol'), text);
+		await ctx.answer(db.get('error_symbol').value(), text);
 	}
 
 	ctx.delete = async (message_ids, delete_for_all=true) => {
 		await vk.api.messages.delete({ message_ids, delete_for_all });
 	}
 
+	ctx.api = vk.api;
+	ctx.user = user;
+
 	return await next();
 });
 
 vk.updates.on('message', async (ctx, next) => {
-	let regexp = new RegExp(`${Config.get('prefix')}\\s+(?<command>.+)`);
+	let regexp = new RegExp(`${db.get('prefix').value()}\\s+(?<command>.+)`, 'i');
 
 	if(!regexp.test(ctx.text))
 		return
 
 	let match = regexp.exec(ctx.text);
-	ctx.text = match.groups.command;
+	ctx.text = ctx.text.replace(new RegExp(db.get('prefix').value(), 'i'), '').trim();
 
 	return await next();
 });
@@ -75,7 +78,7 @@ vk.updates.on('message', async (ctx, next) => {
 
 vk.updates.on('message', hearManager.middleware);
 
-Config.get('modules').forEach(module => {
+db.get('modules').value().forEach(module => {
 	try{
 		let commands = require('./modules/' + module);
 		console.log('Загружаю модуль: ' + module);
@@ -86,6 +89,7 @@ Config.get('modules').forEach(module => {
 		});
 	}catch(e){
 		console.log('Произошла ошибка при попытке загрузить модуль "' + module + '"');
+		console.log(e);
 	}
 });
 
@@ -95,18 +99,17 @@ setInterval(async () => {
 
 	let id = delete_query.shift();
 
-	if(Config.getSettingByName('delete_answers')[0].value == true)
+	if(db.get('settings').find({ name : 'delete_answers' }).value().value == true)
 		try{
 			return await vk.api.messages.delete({ message_ids : id, delete_for_all : true });
 		}catch(e){}
 
-}, parseFloat(Config.getSettingByName('delete_answers_delay')[0].value) * 1000);
+}, parseFloat(db.get('settings').find({ name : 'delete_answers_delay' }).value().value) * 1000);
 
-Config.saveConfig();
 vk.updates.startPolling()
 	.then(async () => {
 		console.log('Polling started');
-		if(Config.getSettingByName('send_message_on_start')[0].value == true){
+		if(db.get('settings').find({ name : 'send_message_on_start' }).value().value == true){
 			await vk.api.messages.send({
 				message : 'VKLP запущен',
 				random_id : 2000000000*Math.random(),
