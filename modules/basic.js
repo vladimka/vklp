@@ -15,6 +15,17 @@ module.exports = [
 		regexp : /^тест$/im,
 		name : 'test',
 		async handler(ctx){
+			console.log(ctx);
+
+			if(ctx.attachments[0]){
+				await ctx.vk.upload.messagePhoto({
+					peer_id : ctx.peer_id,
+					source : {
+						value : ctx.attachments[0]
+					}
+				});
+			}
+
 			await ctx.success('тест');
 		}
 	},
@@ -48,7 +59,14 @@ module.exports = [
 		name : 'info',
 		regexp : /инфо/i,
 		async handler(ctx){
-			await ctx.edit(`-- VKLP v${version} --\nСоздатель: @my_name_is_tom_riddle (Том-Марволло Рэдл)`);
+			let answer = [
+				`-- VKLP v${version} --`,
+				`Создатель: @my_name_is_tom_riddle (Том-Марволло Рэдл)`,
+				'',
+				`Префикс: ${db.get('prefix').value()}`
+			]
+
+			await ctx.edit(answer.join('\n').trim());
 		}
 	},
 	{
@@ -92,7 +110,7 @@ module.exports = [
 		async handler(ctx){
 			let { count } = ctx.$match.groups || 25;
 
-			let messages = await ctx.api.messages.getHistory({
+			let messages = await ctx.vk.api.messages.getHistory({
 				peer_id : ctx.peerId, 
 				count
 			});
@@ -103,6 +121,17 @@ module.exports = [
 					await ctx.delete(msg.id);
 				}catch(e){}
 			});
+		}
+	},
+	{
+		name : 'change_prefix',
+		regexp : /~префикс\s+(?<prefix>.+)/i,
+		async handler(ctx){
+			let { prefix } = ctx.$match.groups;
+
+			await db.set('prefix', prefix).write();
+
+			await ctx.success(`Префикс успешно изменён`);
 		}
 	}
 ]

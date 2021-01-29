@@ -50,7 +50,7 @@ vk.updates.on('message', async (ctx, next) => {
 		await vk.api.messages.delete({ message_ids, delete_for_all });
 	}
 
-	ctx.api = vk.api;
+	ctx.vk = vk;
 	ctx.user = user;
 
 	return await next();

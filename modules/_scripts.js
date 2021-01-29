@@ -83,7 +83,7 @@ module.exports = [
 			let res;
 
 			try{
-				res = await ctx.api.execute({
+				res = await ctx.vk.api.execute({
 					code : script.script
 				});
 			}catch(e){

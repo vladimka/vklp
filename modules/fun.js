@@ -9,12 +9,32 @@ const soveti = [
 	'Не работает - тем более не трогай'
 ];
 
+const random = (min, max) => min+Math.floor(Math.random()*(max-min));
+
 module.exports = [
 	{
 		name : 'soveti',
 		regexp : /совет/i,
 		async handler(ctx){
 			await ctx.edit(soveti[Math.floor(Math.random()*soveti.length)]);
+		}
+	},
+	{
+		name : 'random_number',
+		regexp : /рнд\s+(?<from>\d+)(\s+(?<to>\d+))?/i,
+		async handler(ctx){
+			let { from, to } = ctx.$match.groups;
+			let rnd_num;
+
+			if(to == undefined){
+				to = from;
+				from = 0;
+			}
+
+			from = parseInt(from);
+			to = parseInt(to);
+
+			await ctx.success(`Случайное число от ${from} до ${to}: ${random(from, to)}`);
 		}
 	}
 ]
