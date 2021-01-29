@@ -8,7 +8,7 @@ VKLP это модульный юзербот для вконтакте
 1. Клонируем репозиторий
 
 ```shell script
-git clone https://github.com/vladimka/lpbot.git
+git clone https://github.com/vladimka/vklp.git
 ```
 
 2. На этом [сайте](https://vkhost.github.io) получаем токен `Kate Mobile`
