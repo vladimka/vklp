@@ -7,9 +7,6 @@ const db = low(adapter);
 db.defaults({
 	token : '',
 	modules : ['basic'],
-	success_symbol : "😜",
-	error_symbol : "😡",
-	prefix : "\\.лп",
 	settings: [
 		{
 			name: "send_message_on_start",
@@ -30,7 +27,8 @@ db.defaults({
 			value_type: "time"
 		}
 	],
-	scripts : []
+	scripts : [],
+	audio_templates : []
 }).write();
 
 module.exports = db;

@@ -1,7 +1,7 @@
 const version = require('../package').version;
 const db = require('../config');
 
-function parse_setting_value(value, value_type){
+function formatSettingValue(value, value_type){
 	if(value_type == 'boolean')
 		value = value == true ? 'да' : value == false ? 'нет' : value;
 	else if(value_type == 'time')
@@ -15,18 +15,21 @@ module.exports = [
 		regexp : /^тест$/im,
 		name : 'test',
 		async handler(ctx){
-			console.log(ctx);
-
 			if(ctx.attachments[0]){
-				await ctx.vk.upload.messagePhoto({
-					peer_id : ctx.peer_id,
-					source : {
-						value : ctx.attachments[0]
-					}
+				await ctx.send({
+					user_id : ctx.user.id,
+					attachment : `photo${ctx.attachments[0].ownerId}_${ctx.attachments[0].id}`
 				});
+			}else if(ctx.hasReplyMessage){
+				await ctx.loadMessagePayload();
+				let reply = ctx.replyMessage;
+				console.log(reply.attachments[0].type, reply);
+				await ctx.send({
+					attachment : `audio_message${reply.attachments[0].ownerId}_${reply.attachments[0].id}_${reply.attachments[0].accessKey}`
+				});
+			}else{
+				await ctx.success('test');
 			}
-
-			await ctx.success('тест');
 		}
 	},
 	{
@@ -80,7 +83,7 @@ module.exports = [
 				let name = settings[i].display_name;
 				let value = settings[i].value;
 				let value_type = settings[i].value_type;
-				value = parse_setting_value(value, value_type);
+				value = formatSettingValue(value, value_type);
 
 				answer.push(`${i+1} ${name}: ${value}`);
 			}
@@ -101,7 +104,7 @@ module.exports = [
 			value = value == "+" ? true : value == "-" ? false : value;
 
 			await db.get('settings').find({ name : setting.name }).assign({ value }).write();
-			await ctx.success(`${setting.display_name}: ${parse_setting_value(value, setting.value_type)}`);
+			await ctx.success(`${setting.display_name}: ${formatSettingValue(value, setting.value_type)}`);
 		}
 	},
 	{
@@ -124,21 +127,10 @@ module.exports = [
 		}
 	},
 	{
-		name : 'change_prefix',
-		regexp : /~префикс\s+(?<prefix>.+)/i,
-		async handler(ctx){
-			let { prefix } = ctx.$match.groups;
-
-			await db.set('prefix', prefix).write();
-
-			await ctx.success(`Префикс успешно изменён`);
-		}
-	},
-	{
 		name : 'modules',
 		regexp : /модули/i,
 		async handler(ctx){
-			const answer = ['Модули', ''];
+			const answer = ['Список скачанных модулей', ''];
 
 			db.get('modules').value().forEach((module, idx) => {
 				answer.push(`${idx + 1}. ${module.name} ${module.connected == false ? '(отключён)' : ''}`);
@@ -165,7 +157,7 @@ module.exports = [
 		}
 	},
 	{
-		name : 'disconnect module',
+		name : 'connect module',
 		regexp : /\+модуль\s+(?<moduleName>.+)/i,
 		async handler(ctx){
 			let { moduleName } = ctx.$match.groups;
