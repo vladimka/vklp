@@ -1,5 +1,6 @@
 ### VKLP
 ![Version](https://img.shields.io/badge/version-0.0.4-blue)
+![Status](https://img.shields.io/badge/status-in%20-dev-green)
 
 VKLP это модульный юзербот для вконтакте
 
