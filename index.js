@@ -78,17 +78,21 @@ vk.updates.on('message', async (ctx, next) => {
 
 vk.updates.on('message', hearManager.middleware);
 
-db.get('modules').value().forEach(module => {
+db.get('modules').value().forEach(_m => {
 	try{
-		let commands = require('./modules/' + module);
-		console.log('Загружаю модуль: ' + module);
+		let m = require('./modules/' + _m.name);
+		console.log('Загружаю модуль: ' + _m.name);
 
-		commands.forEach(command => {
-			hearManager.hear(command.regexp, command.handler);
+		m.forEach(command => {
+			hearManager.hear(command.regexp, async ctx => {
+				if(!_m.connected) return;
+
+				await command.handler(ctx);
+			});
 			console.log('Загружена команда: ' + command.name);
 		});
 	}catch(e){
-		console.log('Произошла ошибка при попытке загрузить модуль "' + module + '"');
+		console.log('Произошла ошибка при попытке загрузить модуль "' + _m.name + '"');
 		console.log(e);
 	}
 });

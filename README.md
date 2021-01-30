@@ -1,5 +1,5 @@
 ### VKLP
-![Version](https://img.shields.io/badge/version-0.0.3-blue)
+![Version](https://img.shields.io/badge/version-0.0.4-blue)
 
 VKLP это модульный юзербот для вконтакте
 
@@ -66,3 +66,6 @@ module.exports = [
 \<prefix\> настройки \<id\> \<value\> - изменение значения настройки<br/>
 \<prefix\> дд - удаление сообщений<br/>
 \<prefix\> ~префикс \<new_prefix\> - изменить префикс<br/>
+\<prefix\> модули - выводит список всех ваших модулей
+\<prefix\> +модуль \<moduleName\> - включает модуль
+\<prefix\> -модуль \<moduleName\> - отключает модуль

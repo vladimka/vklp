@@ -133,5 +133,49 @@ module.exports = [
 
 			await ctx.success(`Префикс успешно изменён`);
 		}
+	},
+	{
+		name : 'modules',
+		regexp : /модули/i,
+		async handler(ctx){
+			const answer = ['Модули', ''];
+
+			db.get('modules').value().forEach((module, idx) => {
+				answer.push(`${idx + 1}. ${module.name} ${module.connected == false ? '(отключён)' : ''}`);
+			});
+
+			await ctx.edit(answer.join('\n'));
+		}
+	},
+	{
+		name : 'disconnect module',
+		regexp : /-модуль\s+(?<moduleName>.+)/i,
+		async handler(ctx){
+			let { moduleName } = ctx.$match.groups;
+
+			if(moduleName == 'basic')
+				return await ctx.failure('Нельзя отключить базовый модуль');
+
+			db.get('modules')
+				.find({ name : moduleName })
+				.assign({ connected : false })
+				.write();
+
+			await ctx.success(`Модуль ${moduleName} отключён`);
+		}
+	},
+	{
+		name : 'disconnect module',
+		regexp : /\+модуль\s+(?<moduleName>.+)/i,
+		async handler(ctx){
+			let { moduleName } = ctx.$match.groups;
+
+			db.get('modules')
+				.find({ name : moduleName })
+				.assign({ connected : true })
+				.write();
+
+			await ctx.success(`Модуль ${moduleName} подключён`);
+		}
 	}
 ]
