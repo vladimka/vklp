@@ -74,7 +74,7 @@ module.exports = [
 	},
 	{
 		name : 'settings',
-		regexp : /н(айстройки)?$/im,
+		regexp : /^н(айстройки)?$/im,
 		async handler(ctx){
 			let settings = db.get('settings').value();
 			let answer = ['-- Настройки VKLP --',''];
@@ -93,7 +93,7 @@ module.exports = [
 	},
 	{
 		name : 'settings change',
-		regexp : /н(айстройки)?\s+(?<id>\d+)\s+(?<value>.+)$/im,
+		regexp : /^н(айстройки)?\s+(?<id>\d+)\s+(?<value>.+)$/im,
 		async handler(ctx){
 			let { id, value } = ctx.$match.groups;
 			let setting = db.get('settings').value().find((el, i) => i == id - 1);

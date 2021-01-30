@@ -23,7 +23,7 @@ module.exports = [
 			db
 				.get('audio_templates')
 				.push({
-					attachment : `audio_message${reply.attachments[0].ownerId}_${reply.attachments[0].id}_${reply.attachments[0].accessKey}`,
+					attachment : reply.attachments[0].toString(),
 					name
 				})
 				.write();

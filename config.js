@@ -6,7 +6,12 @@ const db = low(adapter);
 
 db.defaults({
 	token : '',
-	modules : ['basic'],
+	modules : [
+		{
+			name : 'basic',
+			connected : true
+		}
+	],
 	settings: [
 		{
 			name: "send_message_on_start",
@@ -25,7 +30,25 @@ db.defaults({
 			display_name: "Интервал удаления",
 			value: "1",
 			value_type: "time"
-		}
+		},
+		{
+	      "name": "prefix",
+	      "display_name": "Префикс",
+	      "value": ".лп",
+	      "value_type": ""
+	    },
+	    {
+	      "name": "success_symbol",
+	      "display_name": "Символ удачи",
+	      "value": "😜",
+	      "value_type": ""
+	    },
+	    {
+	      "name": "error_symbol",
+	      "display_name": "Символ ошибки",
+	      "value": "⚠",
+	      "value_type": ""
+	    }
 	],
 	scripts : [],
 	audio_templates : []
