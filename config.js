@@ -6,10 +6,27 @@ const db = low(adapter);
 
 db.defaults({
 	token : '',
+	owm_token : '',
 	modules : [
 		{
 			name : 'basic',
 			connected : true
+		},
+		{
+			name : 'chat-admin',
+			connected : false
+		},
+		{
+			name : 'fun',
+			connected : false
+		},
+		{
+			name : 'templates',
+			connected : false
+		},
+		{
+			name : '_scripts',
+			connected : false
 		}
 	],
 	settings: [

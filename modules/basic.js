@@ -66,7 +66,9 @@ module.exports = [
 				`-- VKLP v${version} --`,
 				`Создатель: @my_name_is_tom_riddle (Том-Марволло Рэдл)`,
 				'',
-				`Префикс: ${db.get('prefix').value()}`
+				`Токен Open Weather Map: ${db.get('owm_token').value() ? ctx.success_symbol : ctx.error_symbol}`,
+				'',
+				`Префикс: ${db.get('settings').find({ name : 'prefix' }).value().value}`
 			]
 
 			await ctx.edit(answer.join('\n').trim());

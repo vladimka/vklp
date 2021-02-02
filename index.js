@@ -20,6 +20,11 @@ vk.updates.on('message', async (ctx, next) => {
 		if(ctx.senderId != user.id)
 			return;
 
+	ctx.success_symbol = db.get('settings').find({ name : 'success_symbol' }).value().value;
+	ctx.error_symbol = db.get('settings').find({ name : 'error_symbol' }).value().value;
+	ctx.prefix = db.get('settings').find({ name : 'prefix' }).value().value;
+	ctx.delete_answers = db.get('settings').find({ name : 'delete_answers' }).value().value;
+
 	ctx.edit = async text => {
 		await vk.api.messages.edit({
 			message : text,
@@ -32,18 +37,18 @@ vk.updates.on('message', async (ctx, next) => {
 	}
 
 	ctx.answer = async (symbol, text) => {
-		if(db.get('settings').find({ name : 'delete_answers' }).value().value == true)
+		if(ctx.delete_answers == true)
 			delete_query.push(ctx.id);
 
 		await ctx.edit(`${symbol}| ${text}`);
 	}
 
 	ctx.success = async text => {
-		await ctx.answer(db.get('settings').find({ name : 'success_symbol' }).value().value, text);
+		await ctx.answer(ctx.success_symbol, text);
 	}
 
 	ctx.failure = async text => {
-		await ctx.answer(db.get('settings').find({ name : 'error_symbol' }).value().value, text);
+		await ctx.answer(ctx.error_symbol, text);
 	}
 
 	ctx.delete = async (message_ids=ctx.id, delete_for_all=true) => {
@@ -59,13 +64,13 @@ vk.updates.on('message', async (ctx, next) => {
 });
 
 vk.updates.on('message', async (ctx, next) => {
-	let regexp = new RegExp(`^${db.get('settings').find({ name : 'prefix' }).value().value}\\s+(?<command>.+)$`, 'igm');
+	let regexp = new RegExp(`^${ctx.prefix}\\s+(?<command>.+)$`, 'igm');
 
 	if(!regexp.test(ctx.text))
 		return
 
 	let match = regexp.exec(ctx.text);
-	ctx.text = ctx.text.replace(new RegExp(db.get('settings').find({ name : 'prefix' }).value().value, 'i'), '').trim();
+	ctx.text = ctx.text.replace(new RegExp(ctx.prefix, 'i'), '').trim();
 
 	return await next();
 });
@@ -107,7 +112,9 @@ setInterval(async () => {
 
 	let id = delete_query.shift();
 
-	await vk.api.messages.delete({ message_ids : id, delete_for_all : true });
+	try{
+		await vk.api.messages.delete({ message_ids : id, delete_for_all : true });
+	}catch(e){}
 }, parseFloat(db.get('settings').find({ name : 'delete_answers_delay' }).value().value) * 1000);
 
 vk.updates.startPolling()
