@@ -1,6 +1,7 @@
 const db = require('./config');
 const { VK } = require('vk-io');
 const { HearManager } = require('@vk-io/hear');
+const { executeTemplate } = require('./utils');
 
 const vk = new VK({
 	token : db.get('token').value()
@@ -116,6 +117,18 @@ setInterval(async () => {
 		await vk.api.messages.delete({ message_ids : id, delete_for_all : true });
 	}catch(e){}
 }, parseFloat(db.get('settings').find({ name : 'delete_answers_delay' }).value().value) * 1000);
+
+setInterval(async () => {
+	if(db.get('settings').find({ name : 'auto_status' }).value().value == false)
+		return;
+
+	let auto_status_template = db.get('settings').find({ name : 'auto_status_template' }).value().value;
+	auto_status_template = await executeTemplate(vk, auto_status_template);
+
+	await vk.api.status.set({
+		text : auto_status_template
+	})
+}, 6e4);
 
 vk.updates.startPolling()
 	.then(async () => {

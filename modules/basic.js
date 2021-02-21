@@ -1,5 +1,6 @@
 const version = require('../package').version;
 const db = require('../config');
+const { executeTemplate } = require('../utils');
 
 function formatSettingValue(value, value_type){
 	if(value_type == 'boolean')
@@ -62,11 +63,15 @@ module.exports = [
 		name : 'info',
 		regexp : /инфо/i,
 		async handler(ctx){
+			let auto_status_text = await executeTemplate(ctx.vk, db.get('settings').find({ name : 'auto_status_template' }).value().value);
+
 			let answer = [
 				`-- VKLP v${version} --`,
 				`Создатель: @my_name_is_tom_riddle (Том-Марволло Рэдл)`,
 				'',
 				`Токен Open Weather Map: ${db.get('owm_token').value() ? ctx.success_symbol : ctx.error_symbol}`,
+				`Автостатус: ${db.get('settings').find({ name : 'auto_status' }).value().value ? ctx.success_symbol : ctx.error_symbol}`,
+				`Пример шаблона автостатуса: ${auto_status_text}`,
 				'',
 				`Префикс: ${db.get('settings').find({ name : 'prefix' }).value().value}`
 			]

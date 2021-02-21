@@ -65,6 +65,18 @@ db.defaults({
 	      "display_name": "Символ ошибки",
 	      "value": "⚠",
 	      "value_type": ""
+	    },
+	    {
+	    	name : "auto_status",
+	    	display_name : 'Автостатус',
+	    	value : false,
+	    	value_type : 'boolean'
+	    },
+	    {
+	    	name : "auto_status_template",
+	    	display_name : 'Шаблон автостатуса',
+	    	value : '',
+	    	value_type : ''
 	    }
 	],
 	scripts : [],
