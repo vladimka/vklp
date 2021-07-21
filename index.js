@@ -122,12 +122,11 @@ setInterval(async () => {
 	if(db.get('settings').find({ name : 'auto_status' }).value().value == false)
 		return;
 
-	let auto_status_template = db.get('settings').find({ name : 'auto_status_template' }).value().value;
-	auto_status_template = await executeTemplate(vk, auto_status_template);
+	let auto_status_template = await executeTemplate(vk, db.get('settings').find({ name : 'auto_status_template' }).value().value);
 
 	await vk.api.status.set({
 		text : auto_status_template
-	})
+	});
 }, 6e4);
 
 vk.updates.startPolling()
