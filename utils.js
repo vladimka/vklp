@@ -6,10 +6,9 @@ async function executeTemplate(vk, template){
 
 	let me = await vk.api.users.get({ fields : 'photo_id' });
 	me = me[0];
-	// console.log(me);
+
 	let ava_info = await vk.api.photos.getById({ photos : me.photo_id, extended : 1 });
 	ava_info = ava_info[0]
-	// console.log(ava_info);
 
 	let variables = {
 		'dialogs_count' : conversations.count,
@@ -20,7 +19,6 @@ async function executeTemplate(vk, template){
 	}
 
 	template = template.replace(/\{(.+?)\}/ig, (_, varName) => {
-		console.log(varName);
 		return variables[varName];
 	});
 

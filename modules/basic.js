@@ -67,7 +67,7 @@ module.exports = [
 
 			let answer = [
 				`-- VKLP v${version} --`,
-				`Создатель: @hex10f2c (Том-Марволло Рэдл)`,
+				`Создатель: @id584804653 (Vladimka)`,
 				'',
 				`Токен Open Weather Map: ${db.get('owm_token').value() ? ctx.success_symbol : ctx.error_symbol}`,
 				`Автостатус: ${db.get('settings').find({ name : 'auto_status' }).value().value ? ctx.success_symbol : ctx.error_symbol}`,
